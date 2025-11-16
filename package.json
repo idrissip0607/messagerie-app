@@ -1,0 +1,36 @@
+{
+  "name": "messagerie-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@fancyapps/ui": "^6.1.5",
+    "@imagekit/next": "^2.1.3",
+    "axios": "^1.13.1",
+    "browser-image-compression": "^2.0.2",
+    "daisyui": "^5.4.2",
+    "firebase": "^12.5.0",
+    "lucide-react": "^0.552.0",
+    "next": "16.0.1",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-toastify": "^11.0.5",
+    "swr": "^2.3.6",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.1",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
