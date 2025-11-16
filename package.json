@@ -20,6 +20,7 @@
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-toastify": "^11.0.5",
+    "styled-components": "^6.1.19",
     "swr": "^2.3.6",
     "zustand": "^5.0.8"
   },
