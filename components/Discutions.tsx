@@ -8,6 +8,7 @@ import { Logout } from "@/controllers/Logout";
 import { useCurrentUserStore } from "@/store";
 import axios from "axios";
 import useSWR, { mutate } from "swr";
+import Link from "next/link";
 
 // SWR fetcher function
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
@@ -68,9 +69,9 @@ function Discutions({
               <button className="header-btn">
                 <Phone size={20} />
               </button>
-              <button className="header-btn">
+              <Link href={`/video-call/${currentUser?.id}`} className="header-btn">
                 <Video size={20} />
-              </button>
+              </Link>
               <button className="header-btn">
                 <Info size={20} />
               </button>

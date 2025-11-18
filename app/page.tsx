@@ -1,19 +1,25 @@
 "use client";
 import { Login } from "@/controllers/Login";
 import { LoginMiddleware } from "@/controllers/LoginMiddleware";
+import { ToastError, ToastInfo } from "@/controllers/Toast";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Bounce, ToastContainer } from "react-toastify";
 import styled from "styled-components";
 
-function page() {
+function Page() {
+  
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     LoginMiddleware(router, setLoading, "accueil");
+    alert("il n y a que la connexion avec google qui est possible pour le moment");
   }, []);
+
+
 
   if (loading) {
     return (
@@ -25,6 +31,20 @@ function page() {
 
   return (
     <div className="flex justify-center bg-gray-100 shadow items-center h-screen">
+      <>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Bounce}
+      />
       <StyledWrapper>
         <form className="form mx-1 md:mx-7">
           <div className="flex-column">
@@ -80,7 +100,7 @@ function page() {
           <p className="p line">Or With</p>
           <div className="flex-col">
             <button
-            type="button"
+              type="button"
               className="btn google"
               onClick={() => {
                 Login(router);
@@ -154,7 +174,9 @@ function page() {
           </div>
         </form>
       </StyledWrapper>
+      </>
     </div>
+    
   );
 }
 
@@ -165,7 +187,7 @@ const StyledWrapper = styled.div`
     gap: 10px;
     background-color: #ffffff;
     padding: 20px 70px;
-    width: full;
+    width: 100%;
     border-radius: 20px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
       Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
@@ -274,4 +296,4 @@ const StyledWrapper = styled.div`
   }
 `;
 
-export default page;
+export default Page;

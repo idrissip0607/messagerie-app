@@ -6,6 +6,7 @@ import Amis from "@/components/Amis";
 import Discutions from "@/components/Discutions";
 import { useRouter } from "next/navigation";
 import { LoginMiddleware } from "@/controllers/LoginMiddleware";
+import { Bounce, ToastContainer } from "react-toastify";
 
 function App() {
   const [currentContact, setCurrentContact] = useState("Marie");
@@ -32,6 +33,20 @@ function App() {
     <div className="chat-container">
       <Amis />
       <Discutions contacts={contacts} currentContact={currentContact} />
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Bounce}
+      />
     </div>
   );
 }
