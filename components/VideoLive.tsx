@@ -93,7 +93,7 @@ function ParticipantView(props: { participantId: string}) {
     <div
   key={props.participantId}
   className={`card shadow-md bg-base-100 border border-base-200 p-4 mb-4 ${
-    isLocal ? "bg-green-200" : "bg-gray-300"
+    isLocal ? "bg-transparent" : "bg-gray-50"
   }`}
 >
 
@@ -104,7 +104,7 @@ function ParticipantView(props: { participantId: string}) {
   {webcamOn ? (
     <div className="rounded-lg overflow-hidden border border-base-300">
       <div className="font-semibold text-sm text-primary">
-      👤 {JSON.parse(localStorage.getItem("user")!)?.name}
+      👤 {displayName}
     </div>
       <VideoPlayer
         participantId={props.participantId}
@@ -171,9 +171,8 @@ function MeetingView(props: {
   };
 
   return (
-     <div className="flex h-screen w-full items-center justify-center">
+     <div className="flex h-screen w-full items-start flex-col md:flex-row justify-between ">
             <div className="flex flex-col h-screen w-full items-center justify-center">
-                <h3>Id de l'appel: {props.meetingId}</h3>
                 {joined && joined == "JOINED" ? (
                     <div>
                         <div className="grid justify-center items-center grid-cols-1 md:grid-cols-2 gap-4">
@@ -189,7 +188,12 @@ function MeetingView(props: {
                 ) : joined && joined == "JOINING" ? (
                     <p>Appel en cours...</p>
                 ) : (
+                    <>
+                    <div className="flex flex-col gap-3">
+                    <h3>Id de l'appel: {props.meetingId}</h3>
                     <button className="btn btn-primary" id="decrocheBtn" onClick={joinMeeting}>Repondre</button>
+                    </div>
+                    </>
                 )}
             </div>
         </div>
@@ -218,7 +222,7 @@ export function VideoLive() {
         meetingId,
         micEnabled: true,   // Micro activé par défaut
         webcamEnabled: true, // Webcam activée par défaut
-        name: "C.V. Raman",  // Nom du participant local
+        name: JSON.parse(localStorage.getItem("user")!)?.name,  // Nom du participant local
         debugMode: false,
       }}
       token={authToken} // Token pour rejoindre la réunion
