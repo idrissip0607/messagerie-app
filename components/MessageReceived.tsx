@@ -11,23 +11,17 @@ function MessageReceived({ messages }: { messages: Message[] }) {
   const { currentUser } = useCurrentUserStore();
 
   useEffect(() => {
-        if (typeof window !== undefined) {
-
-            Fancybox.bind("[data-fancybox]", {}); //On initialise Fancybox
-
-            const id = JSON.parse(localStorage.getItem("user")!)?.id || ""
-            setUser(id)
-        }
-    }, [])
-
-  useEffect(() => {
     if (typeof window !== "undefined") {
-      const id = JSON.parse(localStorage.getItem("user")!)?.id || "";
-      setUser(id);
+      // Initialiser Fancybox
+      Fancybox.bind("[data-fancybox]", {});
+
+      // Récupérer l'ID de l'utilisateur depuis localStorage
+      const id = JSON.parse(localStorage.getItem("user")!)?.id || ""
+      setUser(id)
     }
   }, []);
 
-  // Auto-scroll to bottom when messages change
+  // Auto-scroll vers le bas quand les messages changent
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -48,10 +42,9 @@ function MessageReceived({ messages }: { messages: Message[] }) {
 
   return (
     <div className="messages-container">
-      {uniqueMessages.map((message, index) => (
+      {uniqueMessages.map((message) => (
         <div
-          // Utiliser une combinaison de l'ID du message et de l'index pour garantir l'unicité
-          key={`${message.id}-${index}`}
+          key={message.id} // Utiliser uniquement l'ID du message pour la clé
           className={`message-wrapper ${
             message.sender === user ? "sent" : "received"
           }`}
@@ -62,20 +55,24 @@ function MessageReceived({ messages }: { messages: Message[] }) {
               message.text.includes("http") &&
               message.text.includes(".webp") ? (
                 <a href={message.text || ""} data-fancybox>
-                  <img src={message.text || ""} alt="" />
+                  <img src={message.text || ""} alt="Image envoyée" />
                 </a>
-              ) : message.text.includes("webm") ? (
+              ) : message.text.includes(".webm") ? (
                 <audio
-                src={message.text || ""}
-                controls
-                className="w-full mb-3"
-              ></audio>
-              ) : (message.text)}
+                  src={message.text || ""}
+                  controls
+                  className="w-full mb-3"
+                ></audio>
+              ) : (
+                message.text
+              )}
             </div>
             <div className="message-time">{message.time}</div>
-            <div className="message-time">
-              {message.sender !== user && currentUser?.name}
-            </div>
+            {message.sender !== user && (
+              <div className="message-time">
+                {currentUser?.name || "Utilisateur"}
+              </div>
+            )}
           </div>
         </div>
       ))}

@@ -12,4 +12,3 @@ export interface Contact {
   color?: string;
   status?: string
 }
-

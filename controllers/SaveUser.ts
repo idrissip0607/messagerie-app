@@ -1,24 +1,36 @@
 import { Contact } from "@/types";
 import axios from "axios";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { toast } from "react-toastify";
 
 export const saveUser = async (router: AppRouterInstance, body: Contact) => {
   try {
+    // Vérifier que le corps de la requête contient les informations nécessaires
+    if (!body?.id || !body?.name) {
+      toast.error("Informations utilisateur incomplètes.");
+      return;
+    }
+
     localStorage.setItem("user", JSON.stringify(body));
-    //  on ajoute une session storage pour verifier l'expiration des données
+    // On ajoute une session storage pour vérifier l'expiration des données
     sessionStorage.setItem("loginStatus", "en ligne");
 
-    // on save l'user dans la db
+    // On sauvegarde l'utilisateur dans la base de données
     const req = await axios.patch("/api/save-user", body);
     const res = req?.data;
 
     if (res.message !== "ok") {
-      return alert(res.message);
+      toast.error(
+        res.message || "Erreur lors de la sauvegarde de l'utilisateur."
+      );
+      return;
     }
 
-    // on redirige vers la page de chat
-    return router.push("/chat");
+    // On redirige vers la page de chat
+    router.push("/chat");
+    toast.success("Connexion réussie !");
   } catch (error) {
-    console.log(error);
+    console.error("Erreur lors de la sauvegarde de l'utilisateur :", error);
+    toast.error("Erreur lors de la connexion. Veuillez réessayer.");
   }
 };

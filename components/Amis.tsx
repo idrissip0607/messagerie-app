@@ -22,33 +22,57 @@ function Amis() {
   }, [data, setUsers]);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user")!).id || null;
-    if (user) {
-      setMe(user);
+    // Vérifier que nous sommes dans le navigateur avant d'accéder à localStorage
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser);
+          if (user?.id) {
+            setMe(user.id);
+          }
+        } catch (error) {
+          console.error(
+            "Erreur lors du parsing de l'utilisateur depuis localStorage :",
+            error
+          );
+        }
+      }
     }
   }, []);
 
-  // a revoir explicitement
-  useEffect(() => {
-    // ✅ Vérifie bien qu'on est dans le navigateur
-    if (typeof window !== "undefined") {
-      // ✅ Ajout des écouteurs d’événements
-      document.addEventListener("visibilitychange", () =>
-        handleVisibilityChange(me)
-      ); //Quand on change l'onglet
-      window.addEventListener("beforeunload", () => handleBeforeUnload(me)); //Quand on ferme l'application ou le navigateur
+  // Fonction pour gérer le changement de visibilité
+  const handleVisibilityChangeWrapper = () => {
+    if (me) {
+      handleVisibilityChange(me);
+    }
+  };
 
-      // ✅ Nettoyage des écouteurs
+  // Fonction pour gérer le beforeunload
+  const handleBeforeUnloadWrapper = () => {
+    if (me) {
+      handleBeforeUnload(me);
+    }
+  };
+
+  // Gestion correcte des écouteurs d'événements
+  useEffect(() => {
+    // Vérifier que nous sommes dans le navigateur
+    if (typeof window !== "undefined" && me) {
+      // Ajout des écouteurs d'événements avec les fonctions wrapper
+      const visibilityHandler = () => handleVisibilityChangeWrapper();
+      const beforeUnloadHandler = () => handleBeforeUnloadWrapper();
+
+      document.addEventListener("visibilitychange", visibilityHandler);
+      window.addEventListener("beforeunload", beforeUnloadHandler);
+
+      // Nettoyage des écouteurs lors du démontage du composant
       return () => {
-        document.removeEventListener("visibilitychange", () =>
-          handleVisibilityChange(me)
-        );
-        window.removeEventListener("beforeunload", () =>
-          handleBeforeUnload(me)
-        );
+        document.removeEventListener("visibilitychange", visibilityHandler);
+        window.removeEventListener("beforeunload", beforeUnloadHandler);
       };
     }
-  }, [me]);
+  }, [me]); // Dépendance sur 'me' pour réinitialiser les écouteurs quand il change
 
   return (
     <div className="chat-sidebar">
@@ -61,14 +85,14 @@ function Amis() {
           (contact) =>
             contact?.id !== me && (
               <button
-                key={contact.name}
+                key={contact.id || contact.name} // Utiliser l'ID si disponible, sinon le nom
                 className={`contact-item ${
-                  currentUser === contact.name ? "active" : ""
+                  currentUser?.id === contact.id ? "active" : ""
                 }`}
                 onClick={() => setCurrentUser(contact)}
               >
                 <div className="contact-avatar">
-                  {contact?.name![0]}
+                  {contact?.name?.[0] || "?"}
                   <span
                     className={`contact-status-dot ${
                       contact?.status === "en ligne"
@@ -78,8 +102,12 @@ function Amis() {
                   ></span>
                 </div>
                 <div className="contact-info">
-                  <div className="contact-name">{contact?.name!}</div>
-                  <div className="contact-status">{contact?.status!}</div>
+                  <div className="contact-name">
+                    {contact?.name || "Utilisateur"}
+                  </div>
+                  <div className="contact-status">
+                    {contact?.status || "hors-ligne"}
+                  </div>
                 </div>
               </button>
             )

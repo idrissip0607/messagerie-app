@@ -9,7 +9,7 @@ import { LoginMiddleware } from "@/controllers/LoginMiddleware";
 import { Bounce, ToastContainer } from "react-toastify";
 
 function App() {
-  const [currentContact, setCurrentContact] = useState("Marie");
+  const [currentContact, setCurrentContact] = useState("");
 
   const contacts: Contact[] = [];
 
