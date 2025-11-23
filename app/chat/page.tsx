@@ -7,6 +7,7 @@ import Discutions from "@/components/Discutions";
 import { useRouter } from "next/navigation";
 import { LoginMiddleware } from "@/controllers/LoginMiddleware";
 import { Bounce, ToastContainer } from "react-toastify";
+import Sidebar from "@/components/Sidebar";
 
 function App() {
   const [currentContact, setCurrentContact] = useState("");
@@ -30,9 +31,11 @@ function App() {
   }
 
   return (
-    <div className="chat-container">
-      <Amis />
+    <div className="">
+      <div className="md:flex">
+        <Sidebar />
       <Discutions contacts={contacts} currentContact={currentContact} />
+      </div>
 
       <ToastContainer
         position="top-right"

@@ -75,11 +75,7 @@ function Amis() {
   }, [me]); // Dépendance sur 'me' pour réinitialiser les écouteurs quand il change
 
   return (
-    <div className="chat-sidebar">
-      <div className="sidebar-header">
-        <h2>Discussions</h2>
-      </div>
-
+    <div className="h-full flex flex-col">
       <div className="sidebar-contacts">
         {users.map(
           (contact) =>

@@ -22,7 +22,7 @@ function Discutions({
   contacts: Contact[];
 }) {
   const { currentUser } = useCurrentUserStore();
-  const [messages , setMessages] = useState<Message[]>([])
+  const [messages, setMessages] = useState<Message[]>([]);
 
   // Use SWR for data fetching with real-time updates
   // const { data, error, isLoading } = useSWR(
@@ -38,10 +38,13 @@ function Discutions({
   // );
 
   //On ecoute en temps reels les messages reçus
-    const { data, error, isLoading } = useSWR('/api/get-all-messages', GetMessage, {
-            refreshInterval: 2000, // On vérifie si les données ont été mises à jour dans la DB toutes les 2s
-        }
-    );
+  const { data, error, isLoading } = useSWR(
+    "/api/get-all-messages",
+    GetMessage,
+    {
+      refreshInterval: 2000, // On vérifie si les données ont été mises à jour dans la DB toutes les 2s
+    }
+  );
 
   // Process messages from SWR data
   // const messages = data?.messages || [];
@@ -62,20 +65,21 @@ function Discutions({
   //   }
   // }, [currentUser]);
 
-   useEffect(() => {
-
-        //On filtre pour ne garder que les messages avec la personne qu'on est entrain de discuter
-        if(data && Array.isArray(data) && data.length > 0 && currentUser) {
-
-            const donnees: Message[] = data
-            const filtre = donnees.filter(item => item.sender === currentUser?.id || item.recever === currentUser?.id)
-            setMessages(filtre)
-        }
-    }, [data, currentUser])
-
-    if(error) {
-        console.log(error)
+  useEffect(() => {
+    //On filtre pour ne garder que les messages avec la personne qu'on est entrain de discuter
+    if (data && Array.isArray(data) && data.length > 0 && currentUser) {
+      const donnees: Message[] = data;
+      const filtre = donnees.filter(
+        (item) =>
+          item.sender === currentUser?.id || item.recever === currentUser?.id
+      );
+      setMessages(filtre);
     }
+  }, [data, currentUser]);
+
+  if (error) {
+    console.log(error);
+  }
 
   return (
     <>
@@ -92,7 +96,10 @@ function Discutions({
               <button className="header-btn">
                 <Phone size={20} />
               </button>
-              <Link href={`/video-call/${currentUser?.id}`} className="header-btn">
+              <Link
+                href={`/video-call/${currentUser?.id}`}
+                className="header-btn"
+              >
                 <Video size={20} />
               </Link>
               <button className="header-btn">
@@ -109,7 +116,7 @@ function Discutions({
             </div>
           </div>
 
-          <MessageReceived messages={messages}  />
+          <MessageReceived messages={messages} />
           <SendMessage messages={messages} setMessages={setMessages} />
         </div>
       ) : (
