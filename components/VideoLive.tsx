@@ -14,6 +14,11 @@ import {
 } from "@videosdk.live/react-sdk";
 import { Camera, CameraOff, Mic, MicOff, PhoneOff } from "lucide-react";
 import { toast } from "react-toastify";
+import { useParams, useRouter } from "next/navigation";
+import { useCurrentUserStore } from "@/store";
+import { Message } from "@/types";
+import axios from "axios";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 // Token d'authentification fourni par VideoSDK (à remplacer par votre vrai token)
 export const authToken = process.env.NEXT_PUBLIC_VIDEOSDK_TOKEN;
@@ -61,6 +66,8 @@ function JoinScreen({
   const onClick = async () => {
     try {
       await getMeetingAndToken(meetingId || undefined); // Appelle la fonction pour rejoindre ou créer une réunion
+      
+      
     } catch (error) {
       console.error("Erreur lors de la jonction à la réunion :", error);
       toast.error("Impossible de rejoindre la réunion. Veuillez réessayer.");
@@ -68,8 +75,9 @@ function JoinScreen({
   };
 
   return (
-    <div className="flex flex-col gap-3 items-center justify-center">
-      {/* Champ pour saisir l'ID d'une réunion existante */}
+    <>
+    {/* <div className="flex flex-col gap-3 items-center justify-center">
+      Champ pour saisir l'ID d'une réunion existante 
       <input
         type="text"
         placeholder="Entrez l'id de l'appel"
@@ -78,16 +86,17 @@ function JoinScreen({
         }}
         className="input input-bordered w-full max-w-xs"
       />
-      {/* Bouton pour rejoindre une réunion existante */}
+       Bouton pour rejoindre une réunion existante 
       <button className="btn btn-error" onClick={onClick}>
         Rejoindre
       </button>
       <span>ou</span>
-      {/* Bouton pour créer une nouvelle réunion */}
+       Bouton pour créer une nouvelle réunion
       <button className="btn btn-primary" onClick={onClick}>
         Appeler
       </button>
-    </div>
+    </div> */}
+    </>
   );
 }
 
@@ -159,14 +168,25 @@ function ParticipantView(props: { participantId: string }) {
   );
 }
 
+
+
 // Composant pour les contrôles (quitter, micro, webcam)
 function Controls({ micOn, webcamOn }: { micOn: boolean; webcamOn: boolean }) {
-  const { leave, toggleMic, toggleWebcam } = useMeeting(); // Hooks pour contrôler la réunion
+  const router = useRouter()
+  const { leave , toggleMic, toggleWebcam } = useMeeting(); // Hooks pour contrôler la réunion
+  // losque clic sur quitter il nous ramene sur chat
+  const leavequit = () => {
+  leave()
+  return router.push("/chat")
+}
+
+
   return (
     <div className=" p-3 bg-black rounded-2xl flex justify-around">
       <button
         className="cursor-pointer  text-red-500 font-bold"
-        onClick={() => leave()}
+        onClick={() => leavequit() }
+
       >
         {" "}
         <PhoneOff />{" "}
@@ -222,6 +242,9 @@ function MeetingView(props: {
       <div className="flex flex-col h-full w-full items-center justify-center p-4">
         {joined === "JOINED" ? (
           <div className="w-full max-w-7xl">
+            <h3 className="text-lg font-semibold text-white">
+              Id de l'appel : {props.meetingId}
+            </h3>
             <div
               className="
             grid gap-4
@@ -263,6 +286,8 @@ function MeetingView(props: {
 
 // Composant principal qui gère la logique complète de la vidéo
 export function VideoLive() {
+  const {idUser} = useParams() // id de l'utilisateur avec qui on veut discuter par appel
+  const {currentUser} = useCurrentUserStore() // l'user avec qui on veut discuter
   const [meetingId, setMeetingId] = useState<string | null>(null); // Stocke l'ID de la réunion actuelle
 
   // Fonction pour récupérer ou créer une réunion
@@ -270,6 +295,11 @@ export function VideoLive() {
     try {
       const meetingId = id && id.trim().length > 0 ? id : await createMeeting();
       setMeetingId(meetingId); // Met à jour l'état avec l'ID
+       
+      return meetingId
+      
+      
+      
     } catch (error) {
       console.error(
         "Erreur lors de la création/rejonction de la réunion :",
@@ -285,6 +315,86 @@ export function VideoLive() {
   const onMeetingLeave = () => {
     setMeetingId(null);
   };
+
+   const handleSendMessage = async (url: string) => {
+        try {
+
+            //On recupère l'heure où le message a été envoyé
+            const now = new Date();
+            const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+            const uniqueId = Date.now() + Math.floor(Math.random() * 10000);
+
+            const message: Message = {
+                id: uniqueId,
+                text: url,
+                sender: JSON.parse(localStorage.getItem("user")!)?.id || "moi",
+                recever: currentUser?.id!,
+                time: time
+            };
+
+             await axios.post("/api/new-message", message)
+           
+        } catch (error) {
+            console.log(error)
+            alert("Message non envoyé")
+        } 
+    };
+
+     // Verrou pour empêcher les exécutions multiples
+// const hasRun = useRef(false);
+
+//On génère l'id de l'app au chargement de la page
+useEffect(() => {
+    // if (hasRun.current) return;   // ⛔ empêche deuxième exécution
+    // hasRun.current = true;        // ✔️ se lance UNE seule fois
+
+    if (typeof window !== "undefined") {
+
+        const appel = async () => {
+
+            
+            const decrocheBtn = document.getElementById("decrocheBtn")
+
+            // 🟦 CAS : invité (il rejoint l'appel)
+            if (currentUser?.id !== idUser) {
+                const idmeet = String(idUser);
+
+                // Empêche les reset inutiles
+                setMeetingId(prev => prev || idmeet);
+
+                setTimeout(() => {
+                    decrocheBtn?.click();
+                }, 100);
+
+                return;
+            } else {
+               // 🟩 CAS : initiateur (il crée un appel)
+            if (meetingId && meetingId !== "") {
+                // Salle déjà existante → on décroche directement
+                decrocheBtn?.click();
+                return;
+            } else {
+              // 🟧 CASE : création d'une nouvelle salle
+            const idmeet = await getMeetingAndToken(); 
+
+            setMeetingId(idmeet);
+
+            const urlToJoint = `${process.env.NEXT_PUBLIC_URL}/${idmeet}`;
+
+            // Empêche l'envoi double 💯
+            await handleSendMessage(urlToJoint);
+
+            decrocheBtn?.click();
+            }
+            }
+
+        };
+
+        appel();
+    }
+
+}, [meetingId]); // 👈 lancé une seule fois
+
 
   // Si on a un token et un meetingId, on affiche la réunion, sinon l'écran de join
   return authToken && meetingId ? (

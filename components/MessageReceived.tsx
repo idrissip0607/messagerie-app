@@ -4,6 +4,7 @@ import { Message } from "@/types";
 import { useEffect, useState, useRef } from "react";
 import { Fancybox } from "@fancyapps/ui/dist/fancybox/";
 import "@fancyapps/ui/dist/fancybox/fancybox.css";
+import Link from "next/link";
 
 function MessageReceived({ messages }: { messages: Message[] }) {
   const [user, setUser] = useState("");
@@ -63,7 +64,10 @@ function MessageReceived({ messages }: { messages: Message[] }) {
                   controls
                   className="w-full mb-3"
                 ></audio>
-              ) : (
+              ) : message.text.includes(process.env.NEXT_PUBLIC_URL!) ? (<div>
+                                <p>Rejoindre l'appel en cours</p>
+                                <Link href={message?.text} className="btn btn-primary">Rejoindre</Link>
+                            </div>)  : (
                 message.text
               )}
             </div>
