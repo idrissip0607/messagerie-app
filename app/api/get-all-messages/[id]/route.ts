@@ -67,7 +67,7 @@ export const GET = async (req: Request, { params} : { params: Promise<{ id: stri
     try {
         const { id } = await params
 
-         const data = await axios.get(`${process.env.database_url}/messages.json`)
+         const data = await axios.get(`${process.env.DATABASE_URL}/messages.json`)
 
         if(!data?.data) {
             return NextResponse.json({message: "Aucun message trouvé"})
